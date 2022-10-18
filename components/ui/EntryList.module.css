@@ -1,0 +1,6 @@
+.dragging {
+  background-color: #3a3a3a2c;
+  border-radius: 10px;
+  border: 1px dashed #8a8a8a;
+  transition: all 0.2s ease-in-out;
+}
