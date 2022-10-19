@@ -1,5 +1,6 @@
-import { FC, useReducer } from 'react'
+import { FC, useEffect, useReducer } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { entriesApi } from '../../apis'
 
 import { Entry } from '../../interfaces'
 import { EntriesContext, entriesReducer } from './'
@@ -13,58 +14,66 @@ interface Props {
 }
 
 const ENTRIES_INITIAL_STATE: EntriesState = {
-  entries: [
-    {
-    _id: uuidv4(),
-    description: 'Entry 1 - Pending',
-    status: 'pending',
-    createdAt: Date.now(),
-    },
-    {
-    _id: uuidv4(),
-    description: 'Entry 2 - finished',
-    status: 'finished',
-    createdAt: Date.now() - 500000,
-    },
-    {
-    _id: uuidv4(),
-    description: 'Entry 3 - in-progress',
-    status: 'in-progress',
-    createdAt: Date.now() - 1000000,
-    },
-    {
-    _id: uuidv4(),
-    description: 'Entry 4 - Pending',
-    status: 'pending',
-    createdAt: Date.now() - 100000,
-    },
-  ]
+  entries: []
 }
 
 export const EntriesProvider: FC<Props> = ({ children }) => {
 
   const [state, dispatch] = useReducer( entriesReducer, ENTRIES_INITIAL_STATE )
 
-  const addEntry = ( description: string ) => {
-    const newEntry: Entry = {
-      _id: uuidv4(),
-      description,
-      status: 'pending',
-      createdAt: Date.now(),
+  const addEntry = async ( description: string ) => {
+    try{
+      const { data } = await entriesApi.post<Entry>( '/entries', { description } )
+  
+      dispatch({
+        type: 'ENTRIES_ADD',
+        payload: data,
+      })
+    } catch (error) {
+      console.log(error)
     }
+  }
 
+  const updateEntry = async ( entry: Entry ) => {
+    try {
+      await entriesApi.put<Entry>( `/entries/${ entry._id }`, {
+        description: entry.description,
+        status: entry.status,
+      } )
+      dispatch({
+        type: 'ENTRIES_UPDATE',
+        payload: entry,
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const removeEntry = async ( id: string ) => {
+    try {
+      await entriesApi.delete<Entry>( `/entries/${ id }` )
+      dispatch({
+        type: 'ENTRIES_REMOVE',
+        payload: id,
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const refreshEntries = async () => {
+    const { data } = await entriesApi.get<Entry[]>('/entries')
     dispatch({
-      type: 'ENTRIES_ADD',
-      payload: newEntry,
+      type: 'ENTRIES_REFRESH',
+      payload: data,
     })
   }
 
-  const updateEntry = ( entry: Entry ) => {
-    dispatch({
-      type: 'ENTRIES_UPDATE',
-      payload: entry,
-    })
-  }
+
+  useEffect(() => {
+    refreshEntries()
+  }, [])
+  
 
   return (
     <EntriesContext.Provider value={{ 
@@ -72,7 +81,7 @@ export const EntriesProvider: FC<Props> = ({ children }) => {
 
       // methods
       addEntry,
-      removeEntry: () => {},
+      removeEntry,
       updateEntry,
     }}>
       { children }

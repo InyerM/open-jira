@@ -4,6 +4,7 @@ import { Grid, Card, CardHeader } from '@mui/material'
 
 import { Layout } from '../components/layouts'
 import { EntryList, NewEntry } from '../components/ui'
+import { RecycleBin } from '../components/ui/RecycleBin'
 
 const Home: NextPage = () => {
   return (
@@ -35,6 +36,7 @@ const Home: NextPage = () => {
           </Card>
         </Grid>
       </Grid>
+      <RecycleBin />
     </Layout>
   )
 }
