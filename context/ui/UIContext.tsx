@@ -11,6 +11,10 @@ interface ContextProps {
   isDragging: boolean
   startDragging: () => void
   endDragging: () => void
+
+  isDialogOpen: boolean
+  openDialog: () => void
+  closeDialog: () => void
 }
 
 export const UIContext = createContext( {} as ContextProps )

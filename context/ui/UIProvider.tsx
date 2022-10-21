@@ -5,6 +5,7 @@ export interface UIState {
   sidemenuOpen: boolean
   isAddingEntry: boolean
   isDragging: boolean
+  isDialogOpen: boolean
 }
 
 interface Props {
@@ -15,6 +16,7 @@ const UI_INITIAL_STATE: UIState = {
   sidemenuOpen: false,
   isAddingEntry: false,
   isDragging: false,
+  isDialogOpen: false
 }
 
 export const UIProvider: FC<Props> = ({ children }) => {
@@ -52,6 +54,18 @@ export const UIProvider: FC<Props> = ({ children }) => {
     })
   }
 
+  const openDialog = () => {
+    dispatch({
+      type: 'UI_OPEN_DIALOG'
+    })
+  }
+
+  const closeDialog = () => {
+    dispatch({
+      type: 'UI_CLOSE_DIALOG'
+    })
+  }
+
   return (
     <UIContext.Provider value={{
       ...state,
@@ -62,6 +76,9 @@ export const UIProvider: FC<Props> = ({ children }) => {
 
       startDragging,
       endDragging,
+
+      openDialog,
+      closeDialog
     }}>
       { children }
     </UIContext.Provider>
